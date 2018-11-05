@@ -21,7 +21,8 @@
 		<div class="section gf-form-group">
 			<h5 class="section-heading">Draw Modes</h5>
 			<gf-form-switch class="gf-form" label="Bars" label-class="width-5" checked="ctrl.panel.bars" on-change="ctrl.render()"></gf-form-switch>
-			<gf-form-switch class="gf-form" label="Lines" label-class="width-5" checked="ctrl.panel.lines" on-change="ctrl.render()"></gf-form-switch>
+			<gf-form-switch class="gf-form" label="Lines" label-class="width-5" checked="ctrl.panel.lines" on-change="ctrl.onLineCheck()"></gf-form-switch>
+			<gf-form-switch class="gf-form" label="Splines" label-class="width-5" checked="ctrl.panel.splines" on-change="ctrl.onSplineCheck()"></gf-form-switch>
 			<gf-form-switch class="gf-form" label="Points" label-class="width-5" checked="ctrl.panel.points" on-change="ctrl.render()"></gf-form-switch>
 		</div>
 		<div class="section gf-form-group">
@@ -29,17 +30,21 @@
 			<div class="gf-form">
 				<label class="gf-form-label width-8">Fill</label>
 				<div class="gf-form-select-wrapper max-width-5">
-					<select class="gf-form-input" ng-model="ctrl.panel.fill" ng-options="f for f in [0,1,2,3,4,5,6,7,8,9,10]" ng-change="ctrl.render()" ng-disabled="!ctrl.panel.lines"></select>
+					<select class="gf-form-input" ng-model="ctrl.panel.fill" ng-options="f for f in [0,1,2,3,4,5,6,7,8,9,10]" ng-change="ctrl.render()" ng-disabled="!ctrl.panel.lines && !ctrl.panel.splines"></select>
 				</div>
 			</div>
 			<div class="gf-form">
 				<label class="gf-form-label width-8">Line Width</label>
 				<div class="gf-form-select-wrapper max-width-5">
-					<select class="gf-form-input" ng-model="ctrl.panel.linewidth" ng-options="f for f in [0,1,2,3,4,5,6,7,8,9,10]" ng-change="ctrl.render()" ng-disabled="!ctrl.panel.lines"></select>
+					<select class="gf-form-input" ng-model="ctrl.panel.linewidth" ng-options="f for f in [0,1,2,3,4,5,6,7,8,9,10]" ng-change="ctrl.render()" ng-disabled="!ctrl.panel.lines && !ctrl.panel.splines"></select>
 				</div>
 			</div>
 			<gf-form-switch ng-disabled="!ctrl.panel.lines" class="gf-form" label="Staircase" label-class="width-8" checked="ctrl.panel.steppedLine" on-change="ctrl.render()">
 			</gf-form-switch>
+			<div class="gf-form">
+				<label class="gf-form-label width-8" >Tension</label>
+				<input type="number" class="gf-form-input max-width-5" placeholder="0.5" data-placement="right" ng-model="ctrl.panel.splineTension" ng-disabled="!ctrl.panel.splines" ng-change="ctrl.render()" ng-model-onblur>
+			</div>
 			<div class="gf-form">
 				<label class="gf-form-label width-8">Point Radius</label>
 				<div class="gf-form-select-wrapper max-width-5">
@@ -50,21 +55,27 @@
 		<div class="section gf-form-group">
 			<h5 class="section-heading">Hover tooltip</h5>
 			<div class="gf-form">
-				<label class="gf-form-label width-9">Mode</label>
-				<div class="gf-form-select-wrapper max-width-8">
+				<label class="gf-form-label width-8">Mode</label>
+				<div class="gf-form-select-wrapper max-width-9">
 					<select class="gf-form-input" ng-model="ctrl.panel.tooltip.shared" ng-options="f.value as f.text for f in [{text: 'All series', value: true}, {text: 'Single', value: false}]" ng-change="ctrl.render()"></select>
 				</div>
 			</div>
 			<div class="gf-form">
-				<label class="gf-form-label width-9">Sort order</label>
-				<div class="gf-form-select-wrapper max-width-8">
+				<label class="gf-form-label width-8">Sort order</label>
+				<div class="gf-form-select-wrapper max-width-9">
 					<select class="gf-form-input" ng-model="ctrl.panel.tooltip.sort" ng-options="f.value as f.text for f in [{text: 'None', value: 0}, {text: 'Increasing', value: 1}, {text: 'Decreasing', value: 2}]" ng-change="ctrl.render()"></select>
 				</div>
 			</div>
 			<div class="gf-form" ng-show="ctrl.panel.stack">
-				<label class="gf-form-label width-9">Stacked value</label>
-				<div class="gf-form-select-wrapper max-width-8">
+				<label class="gf-form-label width-8">Stacked value</label>
+				<div class="gf-form-select-wrapper max-width-9">
 					<select class="gf-form-input" ng-model="ctrl.panel.tooltip.value_type" ng-options="f for f in ['cumulative','individual']" ng-change="ctrl.render()"></select>
+				</div>
+			</div>
+			<div class="gf-form" ng-if="ctrl.panel.xaxis.mode === 'time'">
+				<label class="gf-form-label width-8">Title format</label>
+				<div class="gf-form-select-wrapper max-width-9">
+					<select class="gf-form-input" ng-model="ctrl.panel.tooltip.time_format" ng-options="f for f in ['Date and Time','Date']" ng-change="ctrl.render()"></select>
 				</div>
 			</div>
 		</div>

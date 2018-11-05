@@ -6,6 +6,8 @@ import 'vendor/flot/jquery.flot.stackpercent';
 import 'vendor/flot/jquery.flot.fillbelow';
 import 'vendor/flot/jquery.flot.crosshair';
 import 'vendor/flot/jquery.flot.dashes';
+import 'vendor/flot/jquery.flot.stackbars';
+import 'vendor/flot/jquery.flot.spline';
 import './jquery.flot.events';
 
 import $ from 'jquery';
@@ -416,6 +418,12 @@ class GraphElement {
           fill: 1,
           fillColor: false,
           radius: panel.points ? panel.pointradius : 2,
+        },
+        splines: {
+          show: panel.splines,
+          tension: panel.splineTension,
+          lineWidth: panel.linewidth,
+          fill: this.translateFillOption(panel.fill),
         },
         shadowSize: 0,
       },
