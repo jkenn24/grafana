@@ -81,6 +81,10 @@ class GraphCtrl extends MetricsPanelCtrl {
     stack: false,
     // stack percentage mode
     percentage: false,
+    // spline mode
+    splines: false,
+    // spline tension
+    splineTension: 0.5,
     // legend options
     legend: {
       show: true, // disable/enable legend
@@ -100,6 +104,8 @@ class GraphCtrl extends MetricsPanelCtrl {
       value_type: 'individual',
       shared: true,
       sort: 0,
+      // tool tip time format: date or datetime (displays the date and time or just the date)
+      time_format: 'Date and Time',
     },
     // time overrides
     timeFrom: null,
@@ -269,6 +275,20 @@ class GraphCtrl extends MetricsPanelCtrl {
     override.yaxis = info.yaxis;
     this.render();
   };
+
+  onSplineCheck() {
+    if (this.panel.splines) {
+      this.panel.lines = false;
+    }
+    this.render();
+  }
+
+  onLineCheck() {
+    if (this.panel.lines) {
+      this.panel.splines = false;
+    }
+    this.render();
+  }
 
   addSeriesOverride(override) {
     this.panel.seriesOverrides.push(override || {});

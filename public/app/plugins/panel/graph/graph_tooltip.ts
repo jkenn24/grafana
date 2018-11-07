@@ -214,10 +214,14 @@ export default function GraphTooltip(this: any, elem, dashboard, scope, getSerie
       return;
     }
 
-    if (seriesList[0].hasMsResolution) {
-      tooltipFormat = 'YYYY-MM-DD HH:mm:ss.SSS';
+    if (panel.tooltip.time_format === 'Date and Time') {
+      if (seriesList[0].hasMsResolution) {
+        tooltipFormat = 'YYYY-MM-DD HH:mm:ss.SSS';
+      } else {
+        tooltipFormat = 'YYYY-MM-DD HH:mm:ss';
+      }
     } else {
-      tooltipFormat = 'YYYY-MM-DD HH:mm:ss';
+      tooltipFormat = 'MMMM DD, YYYY';
     }
 
     if (allSeriesMode) {

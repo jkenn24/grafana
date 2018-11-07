@@ -73,6 +73,7 @@ export class DataProcessor {
       case 'time': {
         this.panel.bars = false;
         this.panel.lines = true;
+        this.panel.splines = false;
         this.panel.points = false;
         this.panel.legend.show = true;
         this.panel.tooltip.shared = true;
@@ -82,6 +83,7 @@ export class DataProcessor {
       case 'series': {
         this.panel.bars = true;
         this.panel.lines = false;
+        this.panel.splines = false;
         this.panel.points = false;
         this.panel.stack = false;
         this.panel.legend.show = false;
@@ -92,6 +94,7 @@ export class DataProcessor {
       case 'histogram': {
         this.panel.bars = true;
         this.panel.lines = false;
+        this.panel.splines = false;
         this.panel.points = false;
         this.panel.stack = false;
         this.panel.legend.show = false;
