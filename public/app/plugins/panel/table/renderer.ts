@@ -216,11 +216,11 @@ export class TableRenderer {
     let cellClass = '';
 
     if (this.colorState.cell) {
-      style = ' style="background-color:' + this.colorState.cell + '"';
+      style = ' style="background-color:' + this.colorState.cell + ';';
       cellClasses.push('table-panel-color-cell');
       this.colorState.cell = null;
     } else if (this.colorState.value) {
-      style = ' style="color:' + this.colorState.value + '"';
+      style = ' style="color:' + this.colorState.value + ';';
       this.colorState.value = null;
     }
     // because of the fixed table headers css only solution
@@ -283,7 +283,29 @@ export class TableRenderer {
       cellClass = ' class="' + cellClasses.join(' ') + '"';
     }
 
-    columnHtml = '<td' + cellClass + style + '>' + columnHtml + '</td>';
+    let addStyle = '';
+    if (column.style && column.style.align) {
+      addStyle = addStyle.concat('text-align:' + column.style.align + ';');
+    }
+
+    if (column.style && column.style.minWidth) {
+      addStyle = addStyle.concat('min-width:' + column.style.minWidth + 'px;');
+    }
+
+    if (column.style && column.style.maxWidth) {
+      addStyle = addStyle.concat('max-width:' + column.style.maxWidth + 'px;');
+    }
+
+    if (style === '') {
+      style = ' style="' + addStyle;
+    } else {
+      style = style.concat(addStyle);
+    }
+
+    //style = ' style="text-align:right;width:0%"';
+    console.log('TABLEEEE');
+    columnHtml = '<td' + cellClass + style + '"' + '>' + columnHtml + '</td>';
+    console.log(columnHtml);
     return columnHtml;
   }
 

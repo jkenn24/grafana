@@ -14,6 +14,7 @@ export class ColumnOptionsCtrl {
   getColumnNames: any;
   activeStyleIndex: number;
   mappingTypes: any;
+  columnAlignments: any;
 
   /** @ngInject */
   constructor($scope) {
@@ -44,6 +45,7 @@ export class ColumnOptionsCtrl {
       { text: 'YYYY-MM-DD', value: 'YYYY-MM-DD' },
     ];
     this.mappingTypes = [{ text: 'Value to text', value: 1 }, { text: 'Range to text', value: 2 }];
+    this.columnAlignments = ['left', 'center', 'right'];
 
     this.getColumnNames = () => {
       if (!this.panelCtrl.table) {
@@ -78,6 +80,9 @@ export class ColumnOptionsCtrl {
       dateFormat: 'YYYY-MM-DD HH:mm:ss',
       thresholds: [],
       mappingType: 1,
+      minWidth: null,
+      maxWidth: null,
+      align: 'left',
     };
 
     const styles = this.panel.styles;

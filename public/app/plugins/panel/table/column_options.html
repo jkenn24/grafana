@@ -69,6 +69,30 @@
       </div>
     </div>
 
+    <div class="section gf-form-group">
+      <h5 class="section-heading">Column Format</h5>
+      <div class="gf-form">
+				<label class="gf-form-label width-9">Alignment</label>
+				<div class="gf-form-select-wrapper width-8">
+					<select class="gf-form-input" ng-model="style.align" ng-options="f for f in editor.columnAlignments" ng-change="ctrl.render()"></select>
+				</div>
+			</div>
+      <div class="gf-form">
+          <label class="gf-form-label width-9">Min Width
+            <tip>Min Column Width (in px)</tip>
+          </label>
+          <input type="number" class="gf-form-input width-8" ng-model="style.minWidth" placeholder="1" ng-change="ctrl.render()"
+          ng-model-onblur>
+        </div>
+        <div class="gf-form">
+            <label class="gf-form-label width-9">Max Width
+              <tip>Max Column Width (in px)</tip>
+            </label>
+            <input type="number" class="gf-form-input width-8" ng-model="style.maxWidth" placeholder="1" ng-change="ctrl.render()"
+            ng-model-onblur>
+          </div>
+    </div>
+
     <div class="section gf-form-group" ng-if="style.type === 'string'">
       <h5 class="section-heading">Value Mappings</h5>
       <div class="editor-row">
