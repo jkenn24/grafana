@@ -324,6 +324,26 @@ kbn.formatBuilders.scaledUnits = (factor, extArray) => {
   };
 };
 
+// Formatter which adds a delimitation character for each factor.
+// example: delimit(1000, ",") for 1000000 would be 1,000,000
+kbn.formatBuilders.delimit = (factor, character) => {
+  return (size, decimals, scaledDecimals) => {
+    if (size === null) {
+      return '';
+    }
+
+    const delim = kbn.toFixed(size, decimals);
+
+    const places = factor.toString().length - 1;
+
+    const regEx = '\\B(?=(\\d{' + places + '})+(?!\\d))';
+
+    const parts = delim.toString().split('.');
+    parts[0] = parts[0].replace(new RegExp(regEx, 'g'), character);
+    return parts.join('.');
+  };
+};
+
 // Extension of the scaledUnits builder which uses SI decimal prefixes. If an
 // offset is given, it adjusts the starting units at the given prefix; a value
 // of 0 starts at no scale; -3 drops to nano, +2 starts at mega, etc.
@@ -358,6 +378,21 @@ kbn.formatBuilders.currency = symbol => {
     }
     const scaled = scaler(size, decimals, scaledDecimals);
     return symbol + scaled;
+  };
+};
+
+// Currency formatter for prefixing a symbol onto a number. No scaling
+// exact values only
+kbn.formatBuilders.nonscaledCurrency = symbol => {
+  //const units = ['', 'K', 'M', 'B', 'T'];
+  //const scaler = kbn.formatBuilders.scaledUnits(1000, units);
+  const delimiter = kbn.formatBuilders.delimit(1000, ',');
+  return (size, decimals, scaledDecimals) => {
+    if (size === null) {
+      return '';
+    }
+    const delimited = delimiter(size, decimals, scaledDecimals);
+    return symbol + delimited;
   };
 };
 
@@ -435,7 +470,7 @@ kbn.valueFormats.locale = (value, decimals) => {
   return value.toLocaleString(undefined, { maximumFractionDigits: decimals });
 };
 
-// Currencies
+// Scaled Currencies
 kbn.valueFormats.currencyUSD = kbn.formatBuilders.currency('$');
 kbn.valueFormats.currencyGBP = kbn.formatBuilders.currency('£');
 kbn.valueFormats.currencyEUR = kbn.formatBuilders.currency('€');
@@ -451,6 +486,23 @@ kbn.valueFormats.currencyCZK = kbn.formatBuilders.currency('czk');
 kbn.valueFormats.currencyCHF = kbn.formatBuilders.currency('CHF');
 kbn.valueFormats.currencyPLN = kbn.formatBuilders.currency('zł');
 kbn.valueFormats.currencyBTC = kbn.formatBuilders.currency('฿');
+
+// nonscaled Currencies
+kbn.valueFormats.nscurrencyUSD = kbn.formatBuilders.nonscaledCurrency('$');
+kbn.valueFormats.nscurrencyGBP = kbn.formatBuilders.nonscaledCurrency('£');
+kbn.valueFormats.nscurrencyEUR = kbn.formatBuilders.nonscaledCurrency('€');
+kbn.valueFormats.nscurrencyJPY = kbn.formatBuilders.nonscaledCurrency('¥');
+kbn.valueFormats.nscurrencyRUB = kbn.formatBuilders.nonscaledCurrency('₽');
+kbn.valueFormats.nscurrencyUAH = kbn.formatBuilders.nonscaledCurrency('₴');
+kbn.valueFormats.nscurrencyBRL = kbn.formatBuilders.nonscaledCurrency('R$');
+kbn.valueFormats.nscurrencyDKK = kbn.formatBuilders.nonscaledCurrency('kr');
+kbn.valueFormats.nscurrencyISK = kbn.formatBuilders.nonscaledCurrency('kr');
+kbn.valueFormats.nscurrencyNOK = kbn.formatBuilders.nonscaledCurrency('kr');
+kbn.valueFormats.nscurrencySEK = kbn.formatBuilders.nonscaledCurrency('kr');
+kbn.valueFormats.nscurrencyCZK = kbn.formatBuilders.nonscaledCurrency('czk');
+kbn.valueFormats.nscurrencyCHF = kbn.formatBuilders.nonscaledCurrency('CHF');
+kbn.valueFormats.nscurrencyPLN = kbn.formatBuilders.nonscaledCurrency('zł');
+kbn.valueFormats.nscurrencyBTC = kbn.formatBuilders.nonscaledCurrency('฿');
 
 // Data (Binary)
 kbn.valueFormats.bits = kbn.formatBuilders.binarySIPrefix('b');
@@ -937,6 +989,26 @@ kbn.getUnitFormats = () => {
         { text: 'Swiss franc (CHF)', value: 'currencyCHF' },
         { text: 'Polish Złoty (PLN)', value: 'currencyPLN' },
         { text: 'Bitcoin (฿)', value: 'currencyBTC' },
+      ],
+    },
+    {
+      text: 'nonscaled currency',
+      submenu: [
+        { text: 'Dollars ($)', value: 'nscurrencyUSD' },
+        { text: 'Pounds (£)', value: 'nscurrencyGBP' },
+        { text: 'Euro (€)', value: 'nscurrencyEUR' },
+        { text: 'Yen (¥)', value: 'nscurrencyJPY' },
+        { text: 'Rubles (₽)', value: 'nscurrencyRUB' },
+        { text: 'Hryvnias (₴)', value: 'nscurrencyUAH' },
+        { text: 'Real (R$)', value: 'nscurrencyBRL' },
+        { text: 'Danish Krone (kr)', value: 'nscurrencyDKK' },
+        { text: 'Icelandic Króna (kr)', value: 'nscurrencyISK' },
+        { text: 'Norwegian Krone (kr)', value: 'nscurrencyNOK' },
+        { text: 'Swedish Krona (kr)', value: 'nscurrencySEK' },
+        { text: 'Czech koruna (czk)', value: 'nscurrencyCZK' },
+        { text: 'Swiss franc (CHF)', value: 'nscurrencyCHF' },
+        { text: 'Polish Złoty (PLN)', value: 'nscurrencyPLN' },
+        { text: 'Bitcoin (฿)', value: 'nscurrencyBTC' },
       ],
     },
     {
