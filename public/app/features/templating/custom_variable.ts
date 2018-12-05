@@ -39,9 +39,32 @@ export class CustomVariable implements Variable {
 
   updateOptions() {
     // extract options in comma separated string
-    this.options = _.map(this.query.split(/[,]+/), text => {
-      return { text: text.trim(), value: text.trim() };
-    });
+    this.options = [];
+
+    try {
+      //attempt to carse options as JSON
+      const arr = JSON.parse(this.query);
+      for (let i = 0; i < arr.length; i++) {
+        const obj = arr[i];
+        let txt, val;
+        for (const key in obj) {
+          if (key === '__text') {
+            txt = obj[key];
+          } else if (key === '__value') {
+            val = obj[key];
+          }
+        }
+        if (txt && val) {
+          this.options.push({ text: txt.trim(), value: val.trim() });
+        }
+      }
+    } catch (e) {
+      //If JSON parsing fails, use as comma separated string.
+      this.options = [];
+      this.options = _.map(this.query.split(/[,]+/), text => {
+        return { text: text.trim(), value: text.trim() };
+      });
+    }
 
     if (this.includeAll) {
       this.addAllOption();
