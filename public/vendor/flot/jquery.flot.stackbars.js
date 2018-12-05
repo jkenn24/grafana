@@ -14,7 +14,7 @@ IMPORTANT: Only tested to work properly with bar charts, for other chart types
 
 (function ($) {
     var options = {
-        series: { stack: null } // or number/string
+        series: { stackBars: null } // or number/string
     };
 
     function init(plot) {
@@ -26,15 +26,8 @@ IMPORTANT: Only tested to work properly with bar charts, for other chart types
             var i;
             var allseries = plot.getData();
 
-            var all_bars = true;
-            for (i = 0; i < allseries.length; i++) {
-                if (!allseries[i].bars.show && (allseries[i].lines && allseries[i].lines.show)) {
-                    all_bars = false;
-                    break;
-                }
-            }
 
-            if (s.stack == null || !all_bars || !s.bars.show)
+            if (s.stack == null || !s.stackBars || !s.bars.show)
                 return;
 
             var newPoints = [];

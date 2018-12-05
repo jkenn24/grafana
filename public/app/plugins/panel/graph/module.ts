@@ -81,6 +81,8 @@ class GraphCtrl extends MetricsPanelCtrl {
     stack: false,
     // stack percentage mode
     percentage: false,
+    // stack bars mode
+    stackbars: false,
     // spline mode
     splines: false,
     // spline tension

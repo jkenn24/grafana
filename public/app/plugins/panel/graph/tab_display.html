@@ -42,8 +42,10 @@
 			<gf-form-switch ng-disabled="!ctrl.panel.lines" class="gf-form" label="Staircase" label-class="width-8" checked="ctrl.panel.steppedLine" on-change="ctrl.render()">
 			</gf-form-switch>
 			<div class="gf-form">
-				<label class="gf-form-label width-8" >Tension</label>
-				<input type="number" class="gf-form-input max-width-5" placeholder="0.5" data-placement="right" ng-model="ctrl.panel.splineTension" ng-disabled="!ctrl.panel.splines" ng-change="ctrl.render()" ng-model-onblur>
+				<label class="gf-form-label width-8" >Tension
+				<tip>Spline Tension - Can be any value between 0.01 and 1 inclusive</tip>
+			</label>
+				<input type="number" class="gf-form-input max-width-5" placeholder="0.5" data-placement="right" ng-model="ctrl.panel.splineTension" ng-disabled="!ctrl.panel.splines" ng-change="ctrl.render()" ng-min=0.01 ng-max=1 ng-model-onblur>
 			</div>
 			<div class="gf-form">
 				<label class="gf-form-label width-8">Point Radius</label>
@@ -84,7 +86,9 @@
 			<h5 class="section-heading">Stacking & Null value</h5>
 			<gf-form-switch class="gf-form" label="Stack" label-class="width-7" checked="ctrl.panel.stack" on-change="ctrl.refresh()">
 			</gf-form-switch>
-			<gf-form-switch class="gf-form" ng-show="ctrl.panel.stack" label="Percent" label-class="width-7" checked="ctrl.panel.percentage" on-change="ctrl.render()">
+			<gf-form-switch class="gf-form" ng-show="ctrl.panel.stack && !ctrl.panel.stackBars" label="Percent" label-class="width-7" checked="ctrl.panel.percentage" on-change="ctrl.render()">
+			</gf-form-switch>
+			<gf-form-switch class="gf-form" ng-show="ctrl.panel.stack && !ctrl.panel.percentage && ctrl.panel.bars" label="Stack Bars" label-class="width-7" checked="ctrl.panel.stackBars" on-change="ctrl.render()">
 			</gf-form-switch>
 			<div class="gf-form">
 				<label class="gf-form-label width-7">Null value</label>

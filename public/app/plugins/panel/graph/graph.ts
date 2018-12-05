@@ -393,6 +393,7 @@ class GraphElement {
       legend: { show: false },
       series: {
         stackpercent: panel.stack ? panel.percentage : false,
+        stackBars: panel.stackBars,
         stack: panel.percentage ? null : stack,
         lines: {
           show: panel.lines,
@@ -421,7 +422,7 @@ class GraphElement {
         },
         splines: {
           show: panel.splines,
-          tension: panel.splineTension,
+          tension: panel.splineTension / 2,
           lineWidth: panel.linewidth,
           fill: this.translateFillOption(panel.fill),
         },
