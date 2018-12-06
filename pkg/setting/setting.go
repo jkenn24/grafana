@@ -31,9 +31,15 @@ const (
 )
 
 const (
-	DEV  string = "development"
-	PROD string = "production"
-	TEST string = "test"
+	DEV                 = "development"
+	PROD                = "production"
+	TEST                = "test"
+	APP_NAME            = "Grafana"
+	APP_NAME_ENTERPRISE = "Grafana Enterprise"
+)
+
+var (
+	ERR_TEMPLATE_NAME = "error"
 )
 
 var (
@@ -50,6 +56,9 @@ var (
 	BuildStamp      int64
 	IsEnterprise    bool
 	ApplicationName string
+
+	// packaging
+	Packaging = "unknown"
 
 	// Paths
 	HomePath       string
@@ -106,6 +115,7 @@ var (
 	ExternalUserMngLinkUrl  string
 	ExternalUserMngLinkName string
 	ExternalUserMngInfo     string
+	OAuthAutoLogin          bool
 	ViewersCanEdit          bool
 
 	// Http auth
@@ -207,12 +217,12 @@ type Cfg struct {
 	RendererLimitAlerting int
 
 	DisableBruteForceLoginProtection bool
-
-	TempDataLifetime time.Duration
-
-	MetricsEndpointEnabled bool
-
-	EnableAlphaPanels bool
+	TempDataLifetime                 time.Duration
+	MetricsEndpointEnabled           bool
+	MetricsEndpointBasicAuthUsername string
+	MetricsEndpointBasicAuthPassword string
+	EnableAlphaPanels                bool
+	EnterpriseLicensePath            string
 }
 
 type CommandLineArgs struct {
@@ -531,9 +541,9 @@ func (cfg *Cfg) Load(args *CommandLineArgs) error {
 	// Temporary keep global, to make refactor in steps
 	Raw = cfg.Raw
 
-	ApplicationName = "Grafana"
+	ApplicationName = APP_NAME
 	if IsEnterprise {
-		ApplicationName += " Enterprise"
+		ApplicationName = APP_NAME_ENTERPRISE
 	}
 
 	Env = iniFile.Section("").Key("app_mode").MustString("development")
@@ -622,6 +632,7 @@ func (cfg *Cfg) Load(args *CommandLineArgs) error {
 	auth := iniFile.Section("auth")
 	DisableLoginForm = auth.Key("disable_login_form").MustBool(false)
 	DisableSignoutMenu = auth.Key("disable_signout_menu").MustBool(false)
+	OAuthAutoLogin = auth.Key("oauth_auto_login").MustBool(false)
 	SignoutRedirectUrl = auth.Key("signout_redirect_url").String()
 
 	// anonymous access
@@ -672,6 +683,8 @@ func (cfg *Cfg) Load(args *CommandLineArgs) error {
 	cfg.PhantomDir = filepath.Join(HomePath, "tools/phantomjs")
 	cfg.TempDataLifetime = iniFile.Section("paths").Key("temp_data_lifetime").MustDuration(time.Second * 3600 * 24)
 	cfg.MetricsEndpointEnabled = iniFile.Section("metrics").Key("enabled").MustBool(true)
+	cfg.MetricsEndpointBasicAuthUsername = iniFile.Section("metrics").Key("basic_auth_username").String()
+	cfg.MetricsEndpointBasicAuthPassword = iniFile.Section("metrics").Key("basic_auth_password").String()
 
 	analytics := iniFile.Section("analytics")
 	ReportingEnabled = analytics.Key("reporting_enabled").MustBool(true)
@@ -713,6 +726,10 @@ func (cfg *Cfg) Load(args *CommandLineArgs) error {
 
 	imageUploadingSection := iniFile.Section("external_image_storage")
 	ImageUploadProvider = imageUploadingSection.Key("provider").MustString("")
+
+	enterprise := iniFile.Section("enterprise")
+	cfg.EnterpriseLicensePath = enterprise.Key("license_path").MustString(filepath.Join(cfg.DataPath, "license.jwt"))
+
 	return nil
 }
 

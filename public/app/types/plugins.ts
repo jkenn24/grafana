@@ -1,13 +1,19 @@
+import { ComponentClass } from 'react';
+import { PanelProps, PanelOptionsProps } from './panel';
+
 export interface PluginExports {
-  PanelCtrl?;
-  PanelComponent?: any;
   Datasource?: any;
   QueryCtrl?: any;
   ConfigCtrl?: any;
   AnnotationsQueryCtrl?: any;
-  PanelOptions?: any;
+  VariableQueryEditor?: any;
   ExploreQueryField?: any;
   ExploreStartPage?: any;
+
+  // Panel plugin
+  PanelCtrl?;
+  PanelComponent?: ComponentClass<PanelProps>;
+  PanelOptionsComponent: ComponentClass<PanelOptionsProps>;
 }
 
 export interface PanelPlugin {
@@ -92,4 +98,11 @@ export interface PluginsState {
   layoutMode: string;
   hasFetched: boolean;
   dashboards: PluginDashboard[];
+}
+
+export interface VariableQueryProps {
+  query: any;
+  onChange: (query: any, definition: string) => void;
+  datasource: any;
+  templateSrv: any;
 }

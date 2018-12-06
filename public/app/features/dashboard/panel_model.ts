@@ -60,6 +60,21 @@ export class PanelModel {
     _.defaultsDeep(this, _.cloneDeep(defaults));
   }
 
+  getOptions() {
+    return this[this.getOptionsKey()] || {};
+  }
+
+  updateOptions(options: object) {
+    const update: any = {};
+    update[this.getOptionsKey()] = options;
+    Object.assign(this, update);
+    this.render();
+  }
+
+  private getOptionsKey() {
+    return this.type + 'Options';
+  }
+
   getSaveModel() {
     const model: any = {};
     for (const property in this) {
@@ -80,7 +95,7 @@ export class PanelModel {
   setViewMode(fullscreen: boolean, isEditing: boolean) {
     this.fullscreen = fullscreen;
     this.isEditing = isEditing;
-    this.events.emit('panel-size-changed');
+    this.events.emit('view-mode-changed');
   }
 
   updateGridPos(newPos: GridPos) {
@@ -117,12 +132,8 @@ export class PanelModel {
     }
   }
 
-  panelInitialized() {
+  initialized() {
     this.events.emit('panel-initialized');
-  }
-
-  initEditMode() {
-    this.events.emit('panel-init-edit-mode');
   }
 
   changeType(pluginId: string) {
