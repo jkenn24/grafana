@@ -63,9 +63,14 @@
   }
 
   td {
-    padding: 0.45em 0 0.45em 1.1em;
+    padding: 0.45em 1em 0.45em 1em;
     border-bottom: 2px solid $body-bg;
     border-right: 2px solid $body-bg;
+    position: relative;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 
     &:first-child {
       padding-left: 15px;
@@ -83,7 +88,7 @@
       padding: 0;
 
       a {
-        padding: 0.45em 0 0.45em 1.1em;
+        padding: 0.45em 1em 0.45em 1em;
         height: 100%;
         display: inline-block;
         text-decoration: underline;
@@ -123,7 +128,7 @@
 }
 
 .table-panel-table-header-inner {
-  padding: 0.45em 0 0.45em 1.1em;
+  padding: 0.45em 1em 0.45em 1em;
   text-align: left;
   color: $blue;
   position: absolute;
@@ -141,6 +146,18 @@
   a {
     color: white;
   }
+}
+
+.progress-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  height: 100%;
+  // background-color: #8ef;
+  // background: #8ef;
+
+  // opacity: 0.5;
 }
 
 .table-panel-color-row {

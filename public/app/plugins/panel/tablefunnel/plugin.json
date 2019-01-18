@@ -1,0 +1,19 @@
+{
+  "type": "panel",
+  "name": "Table With Funnels",
+  "id": "tablefunnel",
+
+  "info": {
+    "description": "Table Panel with Funnel Support for Grafana",
+    "author": {
+      "name": "Grafana Project",
+      "url": "https://grafana.com"
+},
+    "logos": {
+      "small": "img/icn-table-panel.svg",
+      "large": "img/icn-table-panel.svg"
+    },
+    "version": "5.0.0"
+  }
+}
+

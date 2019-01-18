@@ -22,6 +22,7 @@ import * as pluginsListPanel from 'app/plugins/panel/pluginlist/module';
 import * as alertListPanel from 'app/plugins/panel/alertlist/module';
 import * as heatmapPanel from 'app/plugins/panel/heatmap/module';
 import * as tablePanel from 'app/plugins/panel/table/module';
+import * as tableFunnelPanel from 'app/plugins/panel/tablefunnel/module';
 import * as singlestatPanel from 'app/plugins/panel/singlestat/module';
 import * as gettingStartedPanel from 'app/plugins/panel/gettingstarted/module';
 import * as gaugePanel from 'app/plugins/panel/gauge/module';
@@ -51,6 +52,7 @@ const builtInPlugins = {
   'app/plugins/panel/alertlist/module': alertListPanel,
   'app/plugins/panel/heatmap/module': heatmapPanel,
   'app/plugins/panel/table/module': tablePanel,
+  'app/plugins/panel/tablefunnel/module': tableFunnelPanel,
   'app/plugins/panel/singlestat/module': singlestatPanel,
   'app/plugins/panel/gettingstarted/module': gettingStartedPanel,
   'app/plugins/panel/gauge/module': gaugePanel,
