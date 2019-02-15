@@ -10,6 +10,8 @@ export function ShareModalCtrl($scope, $rootScope, $location, $timeout, timeSrv,
     theme: 'current',
   };
   $scope.editor = { index: $scope.tabIndex || 0 };
+  $scope.shareImg = {};
+  $scope.shareImg.imgTimeout = 1;
 
   $scope.init = () => {
     $scope.modeSharePanel = $scope.panel ? true : false;
@@ -66,26 +68,51 @@ export function ShareModalCtrl($scope, $rootScope, $location, $timeout, timeSrv,
       params.panelId = $scope.panel.id;
       params.fullscreen = true;
     } else {
-      delete params.panelId;
+      params.panelId = $scope.dashboard.panels.length;
       delete params.fullscreen;
     }
 
     $scope.shareUrl = linkSrv.addParamsToUrl(baseUrl, params);
 
-    let soloUrl = baseUrl.replace(config.appSubUrl + '/dashboard/', config.appSubUrl + '/dashboard-solo/');
-    soloUrl = soloUrl.replace(config.appSubUrl + '/d/', config.appSubUrl + '/d-solo/');
-    delete params.fullscreen;
-    delete params.edit;
-    soloUrl = linkSrv.addParamsToUrl(soloUrl, params);
+    if ($scope.modeSharePanel) {
+      let soloUrl = baseUrl.replace(config.appSubUrl + '/dashboard/', config.appSubUrl + '/dashboard-solo/');
+      soloUrl = soloUrl.replace(config.appSubUrl + '/d/', config.appSubUrl + '/d-solo/');
+      delete params.fullscreen;
+      delete params.edit;
+      soloUrl = linkSrv.addParamsToUrl(soloUrl, params);
 
-    $scope.iframeHtml = '<iframe src="' + soloUrl + '" width="450" height="200" frameborder="0"></iframe>';
+      $scope.iframeHtml = '<iframe src="' + soloUrl + '" width="450" height="200" frameborder="0"></iframe>';
 
-    $scope.imageUrl = soloUrl.replace(
-      config.appSubUrl + '/dashboard-solo/',
-      config.appSubUrl + '/render/dashboard-solo/'
-    );
-    $scope.imageUrl = $scope.imageUrl.replace(config.appSubUrl + '/d-solo/', config.appSubUrl + '/render/d-solo/');
-    $scope.imageUrl += '&width=1000&height=500' + $scope.getLocalTimeZone();
+      $scope.imageUrl = soloUrl.replace(
+        config.appSubUrl + '/dashboard-solo/',
+        config.appSubUrl + '/render/dashboard-solo/'
+      );
+      $scope.imageUrl = $scope.imageUrl.replace(config.appSubUrl + '/d-solo/', config.appSubUrl + '/render/d-solo/');
+      $scope.imageUrl += '&width=1000&height=500' + $scope.getImageTimeout() + $scope.getLocalTimeZone();
+    } else {
+      let soloUrl = baseUrl;
+      delete params.fullscreen;
+      delete params.edit;
+      soloUrl = linkSrv.addParamsToUrl(soloUrl, params);
+
+      $scope.iframeHtml = '<iframe src="' + soloUrl + '" width="450" height="200" frameborder="0"></iframe>';
+
+      $scope.imageUrl = soloUrl.replace(
+        config.appSubUrl + '/dashboard/',
+        config.appSubUrl + '/render/dashboard/'
+      );
+      $scope.imageUrl = $scope.imageUrl.replace(config.appSubUrl + '/d/', config.appSubUrl + '/render/d/');
+      $scope.imageUrl += '&width=1920&height=1080' + $scope.getImageTimeout() + $scope.getLocalTimeZone();
+    }
+
+  };
+
+  $scope.getImageTimeout = () => {
+    if ($scope.shareImg.imgTimeout) {
+      return '&imgTimeout=' + $scope.shareImg.imgTimeout;
+    } else {
+      return '';
+    }
   };
 
   // This function will try to return the proper full name of the local timezone

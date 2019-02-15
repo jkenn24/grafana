@@ -40,6 +40,12 @@ func (hs *HTTPServer) RenderToPng(c *m.ReqContext) {
 		return
 	}
 
+	imgTimeout, err := strconv.Atoi(queryReader.Get("imgTimeout", "1"))
+	if err != nil {
+		c.Handle(400, "Render parameters error", fmt.Errorf("Cannot parse timeout as int: %s", err))
+		return
+	}
+
 	result, err := hs.RenderService.Render(c.Req.Context(), rendering.Opts{
 		Width:           width,
 		Height:          height,
@@ -51,6 +57,7 @@ func (hs *HTTPServer) RenderToPng(c *m.ReqContext) {
 		Timezone:        queryReader.Get("tz", ""),
 		Encoding:        queryReader.Get("encoding", ""),
 		ConcurrentLimit: 30,
+		ImgDelay:		 time.Duration(imgTimeout) * time.Second,
 	})
 
 	if err != nil && err == rendering.ErrTimeout {

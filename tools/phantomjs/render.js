@@ -33,6 +33,7 @@
     var timeoutMs = (parseInt(params.timeout) || 10) * 1000;
     var waitBetweenReadyCheckMs = 50;
     var totalWaitMs = 0;
+    var renderDelay = ((parseInt(params.imgDelay) || 10) * 1000) || 1000;
 
     page.open(params.url, function (status) {
       console.log('Loading a web page: ' + params.url + ' status: ' + status, timeoutMs);
@@ -55,26 +56,38 @@
         });
 
         if (panelsRendered || totalWaitMs > timeoutMs) {
-          var bb = page.evaluate(function () {
-            var container = document.getElementsByClassName("dashboard-container")
-            if (container.length == 0) {
-               container = document.getElementsByClassName("panel-container")
-            }
-            return container[0].getBoundingClientRect();
-          });
           
-          // reset viewport to render full page
-          page.viewportSize = {
-            width: bb.width,
-            height: bb.height
-          };
-
-          page.render(params.png);
-          phantom.exit();
+          setTimeout(renderPage, waitBetweenReadyCheckMs);
         } else {
           totalWaitMs += waitBetweenReadyCheckMs;
-          setTimeout(checkIsReady, waitBetweenReadyCheckMs);
+          // wait for specfied number of seconds to render (allows for more panels to load) default is 1
+          setTimeout(checkIsReady, renderDelay);
         }
+      }
+
+      function renderPage() {
+        var bb = page.evaluate(function () {
+          var cont = document.getElementsByClassName('react-grid-layout');
+          //this tells us if we're looking at a dashboard or not
+          if (cont.length > 0) {
+            return document.getElementsByClassName('react-grid-layout')[0].getBoundingClientRect();
+          } else {
+            return container[0].getBoundingClientRect();;
+          }
+        });
+
+        //add header and tool bars for full dashboard shots
+        bb.width = bb.width > 1800 ? bb.width + 100 : bb.width;
+        bb.height = bb.height > 1800 ? bb.height + 100 : bb.height;
+                
+        // reset viewport to render full page
+        page.viewportSize = {
+          width: bb.width,
+          height: bb.height
+        };
+
+        page.render(params.png);
+        phantom.exit();
       }
 
       setTimeout(checkIsReady, waitBetweenReadyCheckMs);

@@ -130,6 +130,7 @@ func (n *notificationService) uploadImage(context *EvalContext) (err error) {
 		OrgId:           context.Rule.OrgId,
 		OrgRole:         m.ROLE_ADMIN,
 		ConcurrentLimit: setting.AlertingRenderLimit,
+		ImgDelay:		 1,
 	}
 
 	ref, err := context.GetDashboardUID()

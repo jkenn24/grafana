@@ -52,6 +52,7 @@ func (rs *RenderingService) renderViaPhantomJS(ctx context.Context, opts Opts) (
 		fmt.Sprintf("domain=%v", rs.domain),
 		fmt.Sprintf("timeout=%v", opts.Timeout.Seconds()),
 		fmt.Sprintf("renderKey=%v", renderKey),
+		fmt.Sprintf("imgDelay=%v", opts.ImgDelay.Seconds()),
 	}
 
 	if opts.Encoding != "" {

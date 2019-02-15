@@ -23,6 +23,7 @@ type Opts struct {
 	Encoding        string
 	Timezone        string
 	ConcurrentLimit int
+	ImgDelay		time.Duration
 }
 
 type RenderResult struct {
