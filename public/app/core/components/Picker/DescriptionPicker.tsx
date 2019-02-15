@@ -30,7 +30,7 @@ class DescriptionPicker extends Component<Props, any> {
         <Select
           placeholder="Choose"
           classNamePrefix={`gf-form-select-box`}
-          className={`width-7 gf-form-input gf-form-input--form-dropdown ${className || ''}`}
+          className={`width-8 gf-form-input gf-form-input--form-dropdown ${className || ''}`}
           options={optionsWithDesc}
           components={{
             Option: DescriptionOption,

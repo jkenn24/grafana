@@ -327,24 +327,6 @@ func DeleteDashboard(cmd *m.DeleteDashboardCommand) error {
 		if dashboard.IsFolder {
 			deletes = append(deletes, "DELETE FROM dashboard_provisioning WHERE dashboard_id in (select id from dashboard where folder_id = ?)")
 			deletes = append(deletes, "DELETE FROM dashboard WHERE folder_id = ?")
-
-			dashIds := []struct {
-				Id int64
-			}{}
-			err := sess.SQL("select id from dashboard where folder_id = ?", dashboard.Id).Find(&dashIds)
-			if err != nil {
-				return err
-			}
-
-			for _, id := range dashIds {
-				if err := deleteAlertDefinition(id.Id, sess); err != nil {
-					return nil
-				}
-			}
-		}
-
-		if err := deleteAlertDefinition(dashboard.Id, sess); err != nil {
-			return nil
 		}
 
 		for _, sql := range deletes {
@@ -353,6 +335,10 @@ func DeleteDashboard(cmd *m.DeleteDashboardCommand) error {
 			if err != nil {
 				return err
 			}
+		}
+
+		if err := deleteAlertDefinition(dashboard.Id, sess); err != nil {
+			return nil
 		}
 
 		return nil
@@ -392,14 +378,43 @@ func GetDashboardPermissionsForUser(query *m.GetDashboardPermissionsForUserQuery
 		return nil
 	}
 
+	okRoles := []interface{}{query.OrgRole}
+
+	if query.OrgRole == m.ROLE_EDITOR {
+		okRoles = append(okRoles, m.ROLE_VIEWER)
+	}
+
 	params := make([]interface{}, 0)
 
 	// check dashboards that have ACLs via user id, team id or role
-	sql := `SELECT d.id AS dashboard_id, MAX(COALESCE(da.permission, pt.permission)) AS permission
-	FROM dashboard AS d
-		LEFT JOIN dashboard_acl as da on d.folder_id = da.dashboard_id or d.id = da.dashboard_id
-		LEFT JOIN team_member as ugm on ugm.team_id =  da.team_id
-		LEFT JOIN org_user ou ON ou.role = da.role AND ou.user_id = ?
+	sql := `SELECT Id AS dashboard_id, permission FROM (
+		SELECT a.Id, coalesce(MAX(case when a.user_id not null then permission end), MAX(case when a.team_id is not null then permission end), MAX(case when a.role is not null then permission end)) as permission
+		FROM (
+			SELECT d.Id, 
+				da.user_id, 
+				da.team_id,
+				da.role,
+				fa.permission as folder_permission, 
+				da.permission as dashboard_permission,
+				coalesce(da.permission, fa.permission) as permission
+			FROM dashboard d
+			LEFT JOIN dashboard folder ON folder.Id = d.folder_id
+			LEFT JOIN dashboard_acl da ON d.Id = da.dashboard_id
+			(
+				-- include default permissions -->
+				da.org_id = -1 AND (
+				  (folder.id IS NULL AND d.has_acl = 0)
+				)
+			)
+			LEFT JOIN dashboard_acl fa ON d.folder_id = fa.dashboard_id
+			(
+				-- include default permissions -->
+				da.org_id = -1 AND (
+				  (folder.id IS NOT NULL AND folder.has_acl = 0)
+				)
+			)
+			LEFT JOIN team_member as ugm on ugm.team_id =  da.team_id
+			LEFT JOIN org_user ou ON ou.role = da.role AND ou.user_id = ?
 	`
 	params = append(params, query.UserId)
 
@@ -409,9 +424,6 @@ func GetDashboardPermissionsForUser(query *m.GetDashboardPermissionsForUserQuery
 	params = append(params, query.OrgId)
 
 	sql += `
-		LEFT JOIN (SELECT 1 AS permission, 'Viewer' AS role
-			UNION SELECT 2 AS permission, 'Editor' AS role
-			UNION SELECT 4 AS permission, 'Admin' AS role) pt ON ouRole.role = pt.role
 	WHERE
 	d.Id IN (?` + strings.Repeat(",?", len(query.DashboardIds)-1) + `) `
 	for _, id := range query.DashboardIds {
@@ -420,17 +432,24 @@ func GetDashboardPermissionsForUser(query *m.GetDashboardPermissionsForUserQuery
 
 	sql += ` AND
 	d.org_id = ? AND
-	  (
-		(d.has_acl = ?  AND (da.user_id = ? OR ugm.user_id = ? OR ou.id IS NOT NULL))
-		OR (d.has_acl = ? AND ouRole.id IS NOT NULL)
+		(
+			(d.has_acl = ?  AND (da.user_id = ? OR fa.user_id = ? OR ugm.user_id = ? OR ou.id IS NOT NULL))
+			OR (d.has_acl = ? AND ouRole.id IS NOT NULL)
+			AND (
+				da.role IS NULL OR da.role in (?` + strings.Repeat(",?", len(okRoles)-1) + `)
+			)
+		)
+	) a
+	GROUP BY 1
 	)
-	group by d.id
-	order by d.id asc`
+	WHERE permission > 0`
 	params = append(params, query.OrgId)
 	params = append(params, dialect.BooleanStr(true))
 	params = append(params, query.UserId)
 	params = append(params, query.UserId)
+	params = append(params, query.UserId)
 	params = append(params, dialect.BooleanStr(false))
+	params = append(params, okRoles...)
 
 	err := x.SQL(sql, params...).Find(&query.Result)
 

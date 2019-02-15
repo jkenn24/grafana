@@ -45,31 +45,53 @@ func (sb *SqlBuilder) writeDashboardPermissionFilter(user *m.SignedInUser, permi
 	sb.sql.WriteString(` AND
 	(
 		dashboard.id IN (
-			SELECT distinct d.id AS DashboardId
-			FROM dashboard AS d
-			 	LEFT JOIN dashboard folder on folder.id = d.folder_id
-			    LEFT JOIN dashboard_acl AS da ON
-	 			da.dashboard_id = d.id OR
-	 			da.dashboard_id = d.folder_id OR
-	 			(
-	 				-- include default permissions -->
-					da.org_id = -1 AND (
-					  (folder.id IS NOT NULL AND folder.has_acl = ` + falseStr + `) OR
-					  (folder.id IS NULL AND d.has_acl = ` + falseStr + `)
+			SELECT distinct Id AS DashboardId FROM (
+				SELECT a.Id, coalesce(MAX(case when a.user_id not null then permission end), MAX(case when a.team_id is not null then permission end), MAX(case when a.role is not null then permission end)) as permission
+				FROM (
+					SELECT d.Id, 
+						da.user_id, 
+						da.team_id,
+						da.role,
+						fa.permission as folder_permission, 
+						da.permission as dashboard_permission,
+						coalesce(da.permission, fa.permission) as permission
+					FROM dashboard d
+					LEFT JOIN dashboard folder ON folder.Id = d.folder_id
+					LEFT JOIN dashboard_acl da ON d.Id = da.dashboard_id OR
+					(
+						-- include default permissions -->
+						da.org_id = -1 AND (
+						  (folder.id IS NULL AND d.has_acl = ` + falseStr + `)
+						)
 					)
-	 			)
-				LEFT JOIN team_member as ugm on ugm.team_id = da.team_id
-			WHERE
-				d.org_id = ? AND
-				da.permission >= ? AND
-				(
-					da.user_id = ? OR
-					ugm.user_id = ? OR
-					da.role IN (?` + strings.Repeat(",?", len(okRoles)-1) + `)
+					LEFT JOIN dashboard_acl fa ON d.folder_id = fa.dashboard_id OR
+					(
+						-- include default permissions -->
+						da.org_id = -1 AND (
+						  (folder.id IS NOT NULL AND folder.has_acl = ` + falseStr + `)
+						)
+					)
+					LEFT JOIN team_member as ugm on ugm.team_id =  da.team_id
+					LEFT JOIN org_user ou ON ou.role = da.role AND ou.user_id = ?
+					LEFT JOIN org_user ouRole ON ouRole.user_id = ? AND ouRole.org_id = ?
+					WHERE
+					d.org_id = ? AND
+					(
+						da.user_id = ? OR
+						fa.user_id = ? OR
+						ugm.user_id = ? OR
+						da.role IN (?` + strings.Repeat(",?", len(okRoles)-1) + `) OR
+						fa.role IN (?` + strings.Repeat(",?", len(okRoles)-1) + `)
+					)
+				) a
+				GROUP BY 1
 				)
+				WHERE permission >= ?
 		)
 	)`)
 
-	sb.params = append(sb.params, user.OrgId, permission, user.UserId, user.UserId)
+	sb.params = append(sb.params, user.UserId, user.UserId, user.OrgId, user.OrgId, user.UserId, user.UserId, user.UserId)
 	sb.params = append(sb.params, okRoles...)
+	sb.params = append(sb.params, okRoles...)
+	sb.params = append(sb.params, permission)
 }

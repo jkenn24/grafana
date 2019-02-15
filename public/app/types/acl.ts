@@ -56,6 +56,7 @@ export interface NewDashboardAclItem {
 }
 
 export enum PermissionLevel {
+  Restricted = 0,
   View = 1,
   Edit = 2,
   Admin = 4,
@@ -97,4 +98,5 @@ export const dashboardPermissionLevels: DashboardPermissionInfo[] = [
     label: 'Admin',
     description: 'Can add/remove permissions and can add, edit and delete dashboards.',
   },
+  { value: PermissionLevel.Restricted, label: 'Restricted', description: 'Has no permissions. This is the default if no permissions are given.' },
 ];

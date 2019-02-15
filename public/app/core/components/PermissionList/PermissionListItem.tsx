@@ -70,6 +70,8 @@ export default class PermissionsListItem extends PureComponent<Props> {
               </em>
             )}
           {inheritedFromRoot && <em className="muted no-wrap">Default Permission</em>}
+          {!item.inherited && !inheritedFromRoot && <em
+            className="muted no-wrap">Overrides inherited permission of the same type.</em>}
         </td>
         <td className="query-keyword">Can</td>
         <td>

@@ -96,18 +96,54 @@ func (g *dashboardGuardianImpl) checkAcl(permission m.PermissionType, acl []*m.D
 	orgRole := g.user.OrgRole
 	teamAclItems := []*m.DashboardAclInfoDTO{}
 
+	userInheritedFound := false
+	userOverRideFound := false
+	userRestricted := false
+	userInheritedRestricted := false
+
+	roleInheritedFound := false
+	roleOverRideFound := false
+
+	teamInheritedFound := false
+	teamOverRideFound := false
+
 	for _, p := range acl {
 		// user match
 		if !g.user.IsAnonymous && p.UserId > 0 {
-			if p.UserId == g.user.UserId && p.Permission >= permission {
-				return true, nil
+			if p.UserId == g.user.UserId {
+				if !p.Inherited {
+					if p.Permission == 0 {
+						userRestricted = true
+					} else if p.Permission >= permission {
+						return true, nil
+					} else {
+						userOverRideFound = true
+						userInheritedRestricted = false
+					}
+				} else {
+					if p.Permission == 0 && !userOverRideFound {
+						userInheritedRestricted = true
+					} else if p.Permission >= permission {
+						userInheritedFound = true
+					}
+				}
 			}
 		}
 
 		// role match
 		if p.Role != nil {
-			if *p.Role == orgRole && p.Permission >= permission {
-				return true, nil
+			if *p.Role == orgRole {
+				if !p.Inherited {
+					if p.Permission >= permission {
+						return true, nil
+					} else {
+						roleOverRideFound = true
+					}
+				} else {
+					if p.Permission >= permission {
+						roleInheritedFound = true
+					}
+				}
 			}
 		}
 
@@ -115,6 +151,18 @@ func (g *dashboardGuardianImpl) checkAcl(permission m.PermissionType, acl []*m.D
 		if p.TeamId > 0 {
 			teamAclItems = append(teamAclItems, p)
 		}
+	}
+
+	if (userRestricted || userInheritedRestricted) {
+		return false, nil
+	}
+
+	if userInheritedFound && !userOverRideFound {
+		return true, nil
+	}
+
+	if roleInheritedFound && !roleOverRideFound {
+		return true, nil
 	}
 
 	// do we have team rules?
@@ -131,10 +179,24 @@ func (g *dashboardGuardianImpl) checkAcl(permission m.PermissionType, acl []*m.D
 	// evaluate team rules
 	for _, p := range acl {
 		for _, ug := range teams {
-			if ug.Id == p.TeamId && p.Permission >= permission {
-				return true, nil
+			if ug.Id == p.TeamId {
+				if !p.Inherited {
+					if p.Permission >= permission {
+						return true, nil
+					} else {
+						teamOverRideFound = true
+					}
+				} else {
+					if p.Permission >= permission {
+						teamInheritedFound = true
+					}
+				}
 			}
 		}
+	}
+
+	if teamInheritedFound && !teamOverRideFound {
+		return true, nil
 	}
 
 	return false, nil
@@ -166,18 +228,6 @@ func (g *dashboardGuardianImpl) CheckPermissionBeforeUpdate(permission m.Permiss
 		return false, err
 	}
 
-	// validate overridden permissions to be higher
-	for _, a := range acl {
-		for _, existingPerm := range existingPermissions {
-			if !existingPerm.Inherited {
-				continue
-			}
-
-			if a.IsDuplicateOf(existingPerm) && a.Permission <= existingPerm.Permission {
-				return false, ErrGuardianOverride
-			}
-		}
-	}
 
 	if g.user.OrgRole == m.ROLE_ADMIN {
 		return true, nil
