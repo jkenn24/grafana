@@ -302,10 +302,7 @@ export class TableRenderer {
       style = style.concat(addStyle);
     }
 
-    //style = ' style="text-align:right;width:0%"';
-    console.log('TABLEEEE');
     columnHtml = '<td' + cellClass + style + '"' + '>' + columnHtml + '</td>';
-    console.log(columnHtml);
     return columnHtml;
   }
 
