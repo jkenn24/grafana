@@ -105,10 +105,17 @@ export class PostgresDatasource {
       refId = optionalOptions.variable.name;
     }
 
+    let quer = this.templateSrv.replace(query, {}, this.interpolateVariable);
+    let temp = this.templateSrv.replace(quer, {}, this.interpolateVariable);
+    while (quer !== temp) {
+      quer = temp;
+      temp = this.templateSrv.replace(quer, {}, this.interpolateVariable);
+    }
+
     const interpolatedQuery = {
       refId: refId,
       datasourceId: this.id,
-      rawSql: this.templateSrv.replace(query, {}, this.interpolateVariable),
+      rawSql: temp,
       format: 'table',
     };
 

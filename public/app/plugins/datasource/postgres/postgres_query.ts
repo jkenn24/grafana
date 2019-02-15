@@ -90,7 +90,13 @@ export default class PostgresQuery {
     }
 
     if (interpolate) {
-      return this.templateSrv.replace(target.rawSql, this.scopedVars, this.interpolateQueryStr);
+      let quer = this.templateSrv.replace(target.rawSql, {}, this.interpolateQueryStr);
+      let temp = this.templateSrv.replace(quer, {}, this.interpolateQueryStr);
+      while (quer !== temp) {
+        quer = temp;
+        temp = this.templateSrv.replace(quer, {}, this.interpolateQueryStr);
+      }
+      return temp;
     } else {
       return target.rawSql;
     }
@@ -184,11 +190,6 @@ export default class PostgresQuery {
       switch (windows.type) {
         case 'window':
           switch (windows.params[0]) {
-            case 'delta':
-              curr = query;
-              prev = 'lag(' + curr + ') OVER (' + over + ')';
-              query = curr + ' - ' + prev;
-              break;
             case 'increase':
               curr = query;
               prev = 'lag(' + curr + ') OVER (' + over + ')';

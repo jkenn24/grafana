@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { Variable, assignModelProperties, variableTypes } from './variable';
 
 export class ConstantVariable implements Variable {
