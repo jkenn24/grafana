@@ -169,6 +169,10 @@
 		}
 
 		len = pts.length;
+		if (len < 4) {
+			$.extend(series.lines, series.splines);
+			return;
+		}
 
 		// Draw an open curve, not connected at the ends
 		for (idx = 0; idx < len - 2; idx += 2) {

@@ -590,6 +590,12 @@ Licensed under the MIT license.
                         horizontal: false,
                         zero: true
                     },
+                    splines: {
+                        show: false,
+                        tension: false,
+                        lineWidth: 2,
+                        fill: false
+                      },
                     shadowSize: 3,
                     highlightColor: null
                 },
@@ -866,6 +872,8 @@ Licensed under the MIT license.
                 $.extend(true, options.series.points, options.points);
             if (options.bars)
                 $.extend(true, options.series.bars, options.bars);
+            if (options.splines)
+                $.extend(true, options.series.splines, options.splines);
             if (options.shadowSize != null)
                 options.series.shadowSize = options.shadowSize;
             if (options.highlightColor != null)
@@ -1921,9 +1929,16 @@ Licensed under the MIT license.
                 drawGrid();
             }
 
-            for (var i = 0; i < series.length; ++i) {
-                executeHooks(hooks.drawSeries, [ctx, series[i]]);
-                drawSeries(series[i]);
+            if(options.series.splines.show === true && options.series.lines.show === false && options.series.points.show === false && options.stack === true) {
+                for (var i = series.length-1; i >= 0; --i) {
+                    executeHooks(hooks.drawSeries, [ctx, series[i]]);
+                    drawSeries(series[i]);
+                }
+            } else {
+                for (var i = 0; i < series.length; ++i) {
+                    executeHooks(hooks.drawSeries, [ctx, series[i]]);
+                    drawSeries(series[i]);
+                }
             }
 
             executeHooks(hooks.draw, [ctx]);
@@ -2327,6 +2342,15 @@ Licensed under the MIT license.
                 var points = datapoints.points,
                     ps = datapoints.pointsize,
                     prevx = null, prevy = null;
+
+                //unshift first point if spline-y
+                console.log(series);
+                    if (series.splines) {
+                    for (var i = 0; i < ps; i++) {
+                        points.shift();
+                    }
+                    ps = datapoints.pointsize;
+                }
 
                 ctx.beginPath();
                 for (var i = ps; i < points.length; i += ps) {
