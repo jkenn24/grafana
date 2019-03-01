@@ -388,7 +388,7 @@ func GetDashboardPermissionsForUser(query *m.GetDashboardPermissionsForUserQuery
 
 	// check dashboards that have ACLs via user id, team id or role
 	sql := `SELECT Id AS dashboard_id, permission FROM (
-		SELECT a.Id, coalesce(MAX(case when a.user_id not null then permission end), MAX(case when a.team_id is not null then permission end), MAX(case when a.role is not null then permission end)) as permission
+		SELECT a.Id, coalesce(MAX(case when a.user_id not null then permission end), MAX(case when a.team_id is not null then permission end), MAX(case when a.role is not null then permission end), a.permission) as permission
 		FROM (
 			SELECT d.Id, 
 				da.user_id, 
@@ -413,7 +413,7 @@ func GetDashboardPermissionsForUser(query *m.GetDashboardPermissionsForUserQuery
 				  (folder.id IS NOT NULL AND folder.has_acl = 0)
 				)
 			)
-			LEFT JOIN team_member as ugm on ugm.team_id =  da.team_id
+			LEFT JOIN team_member as ugm on ugm.team_id =  da.team_id OR ugm.team_id =  fa.team_id
 			LEFT JOIN org_user ou ON ou.role = da.role AND ou.user_id = ?
 	`
 	params = append(params, query.UserId)

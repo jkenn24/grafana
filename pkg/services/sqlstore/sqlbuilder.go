@@ -46,7 +46,7 @@ func (sb *SqlBuilder) writeDashboardPermissionFilter(user *m.SignedInUser, permi
 	(
 		dashboard.id IN (
 			SELECT distinct Id AS DashboardId FROM (
-				SELECT a.Id, coalesce(MAX(case when a.user_id not null then permission end), MAX(case when a.team_id is not null then permission end), MAX(case when a.role is not null then permission end)) as permission
+				SELECT a.Id, coalesce(MAX(case when a.user_id not null then permission end), MAX(case when a.team_id is not null then permission end), MAX(case when a.role is not null then permission end), a.permission) as permission
 				FROM (
 					SELECT d.Id, 
 						da.user_id, 
@@ -71,7 +71,7 @@ func (sb *SqlBuilder) writeDashboardPermissionFilter(user *m.SignedInUser, permi
 						  (folder.id IS NOT NULL AND folder.has_acl = ` + falseStr + `)
 						)
 					)
-					LEFT JOIN team_member as ugm on ugm.team_id =  da.team_id
+					LEFT JOIN team_member as ugm on ugm.team_id =  da.team_id OR ugm.team_id =  fa.team_id
 					LEFT JOIN org_user ou ON ou.role = da.role AND ou.user_id = ?
 					LEFT JOIN org_user ouRole ON ouRole.user_id = ? AND ouRole.org_id = ?
 					WHERE
