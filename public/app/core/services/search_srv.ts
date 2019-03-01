@@ -103,6 +103,9 @@ export class SearchSrv {
     }
 
     query.folderIds = query.folderIds || [];
+    if (!hasFilters) {
+      query.folderIds = [0];
+    }
 
     promises.push(
       this.backendSrv.search(query).then(results => {
