@@ -90,11 +90,11 @@ export default class PostgresQuery {
     }
 
     if (interpolate) {
-      let quer = this.templateSrv.replace(target.rawSql, {}, this.interpolateQueryStr);
-      let temp = this.templateSrv.replace(quer, {}, this.interpolateQueryStr);
+      let quer = this.templateSrv.replace(target.rawSql, this.scopedVars, this.interpolateQueryStr);
+      let temp = this.templateSrv.replace(quer, this.scopedVars, this.interpolateQueryStr);
       while (quer !== temp) {
         quer = temp;
-        temp = this.templateSrv.replace(quer, {}, this.interpolateQueryStr);
+        temp = this.templateSrv.replace(quer, this.scopedVars, this.interpolateQueryStr);
       }
       return temp;
     } else {
