@@ -90,7 +90,7 @@ export default class MysqlQuery {
     }
 
     if (interpolate) {
-      let quer = this.templateSrv.replace(this.target.rawQuery, this.scopedVars, this.interpolateQueryStr);
+      let quer = this.templateSrv.replace(this.target.rawSql, this.scopedVars, this.interpolateQueryStr);
       let temp = this.templateSrv.replace(quer, this.scopedVars, this.interpolateQueryStr);
       while (quer !== temp) {
         quer = temp;
